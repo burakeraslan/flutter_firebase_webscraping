@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_firebase_webscraping/models/product_model.dart';
 import 'package:flutter_firebase_webscraping/pages/home_page/home_page_controller.dart';
+import 'package:flutter_firebase_webscraping/pages/home_page/sub/add_product/add_product.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -10,9 +11,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Get.put(HomePageController());
-    // 'products' box'ına erişmek için
     final box = Hive.box<ProductModel>('products');
-    final product = ProductModel(productModel: 'productModel', productDescription: 'productDescription', productUrl: 'productUrl');
 
     return GetBuilder<HomePageController>(builder: (controller) {
       return Scaffold(
@@ -25,9 +24,8 @@ class HomePage extends StatelessWidget {
         body: Column(
           children: [
             FloatingActionButton(
-              onPressed: () {
-                // box.add(product);
-                // print(box.getAt(0)?.productModel);
+              onPressed: () async {
+                Get.to(() => const AddProduct());
               },
               elevation: 0,
               child: const Icon(Icons.add),

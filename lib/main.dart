@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_firebase_webscraping/firebase_options.dart';
 import 'package:flutter_firebase_webscraping/models/product_model.dart';
 import 'package:flutter_firebase_webscraping/pages/home_page/home_page.dart';
+import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -24,7 +25,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return const GetMaterialApp(
       home: HomePage(),
     );
   }

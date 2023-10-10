@@ -16,4 +16,20 @@ class ProductModel {
     required this.productDescription,
     required this.productUrl,
   });
+
+  factory ProductModel.fromJson(Map<String, dynamic> json) {
+    return ProductModel(
+      productModel: json['model'],
+      productDescription: json['description'],
+      productUrl: json['url'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'model': productModel,
+      'description': productDescription,
+      'url': productUrl,
+    };
+  }
 }
