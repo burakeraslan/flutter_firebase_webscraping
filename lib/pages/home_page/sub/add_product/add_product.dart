@@ -9,50 +9,106 @@ class AddProduct extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Get.put(AddProductController());
-    return GetBuilder<AddProductController>(builder: (controller) {
-      return Scaffold(
-        appBar: AppBar(
-          elevation: 0,
-          toolbarHeight: 0,
-          backgroundColor: const Color(0xFFFF4D4D),
-        ),
+    return Scaffold(
+      appBar: AppBar(
+        elevation: 0,
+        toolbarHeight: 60,
         backgroundColor: const Color(0xFFFFFFFF),
-        body: Column(
-          children: [
-            SizedBox(
-              height: 60,
-              child: Row(
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      Get.back();
-                    },
-                    icon: const Icon(Icons.arrow_back),
-                  ),
-                  const Text(
-                    'Select',
-                    style: TextStyle(
-                      fontSize: 20,
-                    ),
-                  ).paddingSymmetric(horizontal: 5),
-                ],
-              ),
-            ),
-            Center(
-              child: ElevatedButton(
-                  onPressed: () async {
-                    List<QueryDocumentSnapshot> phoneSnapshots = await controller.getPhones();
-
-                    for (var phoneSnapshot in phoneSnapshots) {
-                      String description = phoneSnapshot["description"];
-                      print("Description: $description");
-                    }
-                  },
-                  child: const Text('tıklat')),
-            )
-          ],
+        title: const Text(
+          'Select',
+          style: TextStyle(
+            fontSize: 20,
+            color: Color(0xFF000000),
+            fontWeight: FontWeight.normal,
+          ),
         ),
-      );
-    });
+        leading: IconButton(
+          onPressed: () {
+            Get.back();
+          },
+          icon: const Icon(Icons.arrow_back),
+          color: const Color(0xFF000000),
+        ),
+      ),
+      backgroundColor: const Color(0xFFFFFFFF),
+      body: StreamBuilder(
+        stream: FirebaseFirestore.instance.collection("phones").snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Column(
+                children: snapshot.data?.docs.map<Widget>((document) {
+                      return Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    document['model'],
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      color: Color(0xFF000000),
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ).paddingOnly(top: 5),
+                                  Text(
+                                    document['description'],
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      color: Color(0xFF000000),
+                                      fontWeight: FontWeight.normal,
+                                    ),
+                                  ).paddingOnly(top: 5),
+                                ],
+                              ),
+                              Checkbox(
+                                value: document['selected'],
+                                onChanged: (value) {
+                                  FirebaseFirestore.instance.collection("phones").doc(document.id).update({
+                                    'selected': value,
+                                  });
+                                },
+                                activeColor: const Color(0xFFFFFFFF),
+                                checkColor: const Color(0xFF000000),
+                                shape: const CircleBorder(),
+                                side: const BorderSide(
+                                  color: Color(0xFF000000),
+                                  width: 1,
+                                ),
+                                splashRadius: 0,
+                              ),
+                            ],
+                          ),
+                          Container(
+                            height: 1,
+                            color: const Color(0xFF666666),
+                          ).paddingOnly(top: 5),
+                        ],
+                      ).paddingSymmetric(vertical: 5);
+                    }).toList() ??
+                    <Widget>[
+                      const Center(
+                        child: Text(
+                          'No data',
+                          style: TextStyle(
+                            fontSize: 20,
+                            color: Color(0xFF000000),
+                            fontWeight: FontWeight.w300,
+                          ),
+                        ),
+                      ),
+                    ],
+              ).paddingSymmetric(horizontal: 20),
+            );
+          }
+
+          return const Center(child: CircularProgressIndicator());
+        },
+      ),
+    );
   }
 }
