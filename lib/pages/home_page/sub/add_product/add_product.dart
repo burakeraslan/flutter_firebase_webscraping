@@ -1,7 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_firebase_webscraping/models/product_model.dart';
 import 'package:flutter_firebase_webscraping/pages/home_page/sub/add_product/add_product_controller.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
+import 'package:styled_text/styled_text.dart';
 
 class AddProduct extends StatelessWidget {
   const AddProduct({super.key});
@@ -9,6 +12,8 @@ class AddProduct extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Get.put(AddProductController());
+    final box = Hive.box<ProductModel>('products');
+
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -47,14 +52,25 @@ class AddProduct extends StatelessWidget {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    document['model'],
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      color: Color(0xFF000000),
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ).paddingOnly(top: 5),
+                                  StyledText(
+                                    text: '<brand>${document['brand']}</brand> <model>${document['model']}</model>',
+                                    tags: {
+                                      'brand': StyledTextTag(
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          color: Color(0xFF000000),
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      'model': StyledTextTag(
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          color: Color(0xFF000000),
+                                          fontWeight: FontWeight.normal,
+                                        ),
+                                      ),
+                                    },
+                                  ),
                                   Text(
                                     document['description'],
                                     style: const TextStyle(
@@ -68,9 +84,33 @@ class AddProduct extends StatelessWidget {
                               Checkbox(
                                 value: document['selected'],
                                 onChanged: (value) {
-                                  FirebaseFirestore.instance.collection("phones").doc(document.id).update({
-                                    'selected': value,
-                                  });
+                                  FirebaseFirestore.instance.collection("phones").doc(document.id).update({'selected': value});
+                                  if (!document['selected']) {
+                                    Get.snackbar(
+                                      'Success',
+                                      'Added ${document['brand']} ${document['model']}',
+                                      backgroundColor: const Color(0xFF00C853),
+                                      colorText: const Color(0xFFFFFFFF),
+                                    );
+                                    box.add(
+                                      ProductModel(
+                                        productBrand: document['brand'],
+                                        productModel: document['model'],
+                                        productDescription: document['description'],
+                                        productUrl: document['url'],
+                                      ),
+                                    );
+                                  } else {
+                                    Get.snackbar(
+                                      'Removed',
+                                      'Removed ${document['brand']} ${document['model']}',
+                                      backgroundColor: const Color(0xFFFF5722),
+                                      colorText: const Color(0xFFFFFFFF),
+                                    );
+                                    box.deleteAt(
+                                      box.values.toList().indexWhere((element) => element.productUrl == document['url']),
+                                    );
+                                  }
                                 },
                                 activeColor: const Color(0xFFFFFFFF),
                                 checkColor: const Color(0xFF000000),
