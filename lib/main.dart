@@ -15,8 +15,7 @@ void main() async {
   Directory appDocDir = await getApplicationCacheDirectory();
   await Hive.initFlutter(appDocDir.path);
   Hive.registerAdapter<ProductModel>(ProductModelAdapter());
-  await Hive.openBox<ProductModel>('products');
-
+  await Hive.openBox<ProductModel>('productList');
   runApp(const MyApp());
 }
 

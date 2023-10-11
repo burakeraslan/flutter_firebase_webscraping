@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_firebase_webscraping/models/product_model.dart';
 import 'package:flutter_firebase_webscraping/pages/home_page/home_page_controller.dart';
 import 'package:flutter_firebase_webscraping/pages/home_page/sub/add_product/add_product.dart';
 import 'package:get/get.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:styled_text/styled_text.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -11,7 +10,6 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Get.put(HomePageController());
-    final box = Hive.box<ProductModel>('products');
 
     return GetBuilder<HomePageController>(builder: (controller) {
       return Scaffold(
@@ -23,13 +21,97 @@ class HomePage extends StatelessWidget {
         backgroundColor: const Color(0xFFFFFFFF),
         body: Column(
           children: [
-            FloatingActionButton(
-              onPressed: () async {
-                Get.to(() => const AddProduct());
-              },
-              elevation: 0,
-              child: const Icon(Icons.add),
-            ),
+            Expanded(
+              child: Stack(children: [
+                if (controller.list.isEmpty)
+                  const Center(
+                    child: Text(
+                      'No Product',
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Color(0xFF000000),
+                      ),
+                    ),
+                  ),
+                SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Column(
+                      children: controller.list.map((product) {
+                    return Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.circle, color: Colors.black, size: 100),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  StyledText(
+                                    text: '<brand>${product.productBrand}</brand> <model>${product.productModel}</model>',
+                                    tags: {
+                                      'brand': StyledTextTag(
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          color: Color(0xFF000000),
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      'model': StyledTextTag(
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          color: Color(0xFF000000),
+                                          fontWeight: FontWeight.normal,
+                                        ),
+                                      ),
+                                    },
+                                  ),
+                                  Text(
+                                    product.productDescription,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      color: Color(0xFF000000),
+                                      fontWeight: FontWeight.normal,
+                                    ),
+                                  ).paddingOnly(top: 5),
+                                  const Text('Fiyat bilgisi',
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        color: Color(0xFF000000),
+                                        fontWeight: FontWeight.bold,
+                                      )).paddingOnly(top: 5),
+                                ],
+                              ).paddingOnly(left: 10)
+                            ],
+                          ).paddingSymmetric(horizontal: 10),
+                          IconButton(
+                              onPressed: () {
+                                controller.deleteSelectedProduct(product);
+                              },
+                              icon: const Icon(Icons.delete)),
+                        ],
+                      ),
+                    );
+                  }).toList()),
+                ),
+                Positioned(
+                  bottom: 25,
+                  right: 25,
+                  child: FloatingActionButton(
+                    onPressed: () {
+                      Get.to(() => const AddProduct());
+                    },
+                    elevation: 0,
+                    backgroundColor: const Color(0xFF000000),
+                    child: const Icon(
+                      Icons.add,
+                      size: 30,
+                    ),
+                  ),
+                )
+              ]),
+            )
           ],
         ),
       );
