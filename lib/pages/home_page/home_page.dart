@@ -44,7 +44,11 @@ class HomePage extends StatelessWidget {
                         children: [
                           Row(
                             children: [
-                              const Icon(Icons.circle, color: Colors.black, size: 100),
+                              const Icon(
+                                Icons.circle,
+                                color: Colors.black,
+                                size: 100,
+                              ),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -75,12 +79,24 @@ class HomePage extends StatelessWidget {
                                       fontWeight: FontWeight.normal,
                                     ),
                                   ).paddingOnly(top: 5),
-                                  const Text('Fiyat bilgisi',
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        color: Color(0xFF000000),
-                                        fontWeight: FontWeight.bold,
-                                      )).paddingOnly(top: 5),
+                                  FutureBuilder<String>(
+                                    future: controller.webScraping(product.productUrl),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState == ConnectionState.waiting) {
+                                        return const Text('Loading...');
+                                      } else if (snapshot.hasError) {
+                                        return const Text('Error');
+                                      } else {
+                                        return Text(
+                                          snapshot.data ?? '',
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            color: Color(0xFF000000),
+                                          ),
+                                        );
+                                      }
+                                    },
+                                  ).paddingOnly(top: 5),
                                 ],
                               ).paddingOnly(left: 10)
                             ],
@@ -109,7 +125,7 @@ class HomePage extends StatelessWidget {
                       size: 30,
                     ),
                   ),
-                )
+                ),
               ]),
             )
           ],
