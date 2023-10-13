@@ -32,7 +32,7 @@ class HomePageController extends GetxController {
     update();
   }
 
-  Future<String> webScraping(String url) async {
+  Future<String> getPrice(String url) async {
     final response = await http.get(Uri.parse(url));
     try {
       if (response.statusCode == 200) {
@@ -43,7 +43,7 @@ class HomePageController extends GetxController {
           return priceText;
         } else {
           // if the price is not found, it tries again
-          return webScraping(url);
+          return getPrice(url);
         }
       } else {
         throw Exception('Error: ${response.statusCode}');

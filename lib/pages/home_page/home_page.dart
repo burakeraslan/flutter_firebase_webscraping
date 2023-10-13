@@ -37,18 +37,18 @@ class HomePage extends StatelessWidget {
                   physics: const BouncingScrollPhysics(),
                   child: Column(
                       children: controller.list.map((product) {
-                    return Padding(
-                      padding: const EdgeInsets.all(10),
+                    return Container(
+                      padding: const EdgeInsets.all(20),
+                      margin: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: const Color(0xFFEEEEEE),
+                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Row(
                             children: [
-                              const Icon(
-                                Icons.circle,
-                                color: Colors.black,
-                                size: 100,
-                              ),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -80,10 +80,14 @@ class HomePage extends StatelessWidget {
                                     ),
                                   ).paddingOnly(top: 5),
                                   FutureBuilder<String>(
-                                    future: controller.webScraping(product.productUrl),
+                                    future: controller.getPrice(product.productUrl),
                                     builder: (context, snapshot) {
                                       if (snapshot.connectionState == ConnectionState.waiting) {
-                                        return const Text('Loading...');
+                                        return const Text('Loading...',
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              color: Color(0xFF000000),
+                                            ));
                                       } else if (snapshot.hasError) {
                                         return const Text('Error');
                                       } else {
